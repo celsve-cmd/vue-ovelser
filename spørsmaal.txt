@@ -1,0 +1,57 @@
+Hvorfor er count et objekt og ikke et tall? 
+
+--I JavaScript sendes primitive verdier (number, string, boolean) 
+som kopier, så Vue kan ikke oppdage når en vanlig tallvariabel endres.
+Vue kan lese et tall helt fint. Problemet er at Vue ikke kan fange opp når det endres.
+Derfor pakker ref() verdien inn i et objekt med egenskapen .value. 
+Da kan Vue spore når verdien leses og utløse en oppdatering av DOM-en når den skrives til.
+
+---------------------------------------------------------------------------------------
+
+Hva er det Vue trenger som en vanlig variabel ikke gir?
+
+--Vue må vite når en verdi endres for å kunne oppdatere DOM-en automatisk, 
+og da trenger Vue reaktivitet.
+En vanlig let count = 0 er bare et tall i minnet. Man kan endre det, men ingen får beskjed. 
+Siden blir stående med gammel verdi.
+
+Med ref() gjør Vue 2 ting:
+*Sporing (track): Når templaten leser count.value, 
+noterer Vue at «denne delen av siden avhenger av count».
+
+*Utløsing (trigger): Når du endrer count.value, 
+finner Vue alle som avhenger av den og oppdaterer dem.
+
+---------------------------------------------------------------------------------------
+
+Hvorfor skriver vi count.value i scriptet, men {{ count }} i templaten?
+
+--I scriptet er count selve ref-objektet, så man må bruke .value for å komme til tallet inni.
+I templaten gjør Vue automatisk unwrapping av refs på toppnivå. 
+Man skriver {{ count }}, og Vue henter .value for deg bak kulissene.
+Det er også gjort for at templaten skal bli ryddigere.
+
+{{}} kalles en interpolering. Alt inni doble krøllparenteser blir evaluert som JavaSvript.
+Det må da derfor være et uttrykk (noe som gir en verdi), og ikke en setning. 
+Dersom man trenger en setning, hører den hjemme i <script setup> som en funksjon.
+
+---------------------------------------------------------------------------------------
+
+Du endret count++ tilbake til count.value++. 
+Hva var det som faktisk gikk galt — og hvorfor ga det ingen feilmelding?
+
+--Count er et ref-objekt ( { value: 0 } ), ikke et tall.
+
+count++ prøver å behandle objektet som et tall, mens verdien Vue overvåker, count.value, 
+aldri endres. 
+Dermed utløses ingen reaktivitet, og siden oppdateres ikke.
+
+Det kom ingen synlig feilmelding fordi JavaScript er løst typet og konverterer objektet til 
+NaN uten å protestere, og fordi Vite ikke typesjekker under bygging.
+
+Hvor man kan se feilmeldingene:
+Devtools F12 (ved kjøring)
+Editoren, altså VS Code (røde streker mens du skriver)
+
+I terminalen, MEN KUN HVIS MAN KJØRER npm run type-check. Dette avhenger av at man har
+"type-check": "vue-tsc --build" i package.json under "scripts". (\vue-ovelser\package.json)
