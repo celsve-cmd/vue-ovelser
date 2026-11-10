@@ -55,3 +55,44 @@ Editoren, altså VS Code (røde streker mens du skriver)
 
 I terminalen, MEN KUN HVIS MAN KJØRER npm run type-check. Dette avhenger av at man har
 "type-check": "vue-tsc --build" i package.json under "scripts". (\vue-ovelser\package.json)
+
+
+-------------------------------------------------------------------------------------------------------------------------
+
+TO-DO LIST
+---------------
+
+Hvorfor flyttet notatet seg da du brukte unshift med :key="index"? Hva var det Vue ikke klarte å finne ut?
+
+--Med index som key sier du til Vue at «rad 0» er den samme raden uansett hvilken oppgave som ligger der. 
+Når du gjør unshift, får den nye oppgaven index 0, og alle de gamle skyves ett hakk ned. 
+Vue ser at key 0, 1, 2 fortsatt finnes, så den gjenbruker de eksisterende DOM-elementene og bytter bare ut teksten i dem. 
+Til slutt lager den ett nytt element nederst for den siste oppgaven.
+
+Det Vue ikke klarte å finne ut, er at oppgaven flyttet seg. 
+Den trodde bare innholdet i hver rad var endret. 
+Notat-inputen har ingen v-model, så verdien bor i selve DOM-elementet, ikke i dataene. 
+Elementet ble stående igjen på plassen sin mens teksten byttet eier, og dermed hang notatet på feil oppgave.
+
+---------------------------------------------------------------------------------------
+
+Hvorfor ser du ingen forskjell når lista bare viser tekst?
+
+--Fordi all tilstanden da kommer fra dataene. Vue patcher teksten i hvert element, og sluttresultatet ser identisk ut 
+enten den flytter elementer eller oppdaterer innholdet i dem. Feilen blir først synlig når DOM-elementene har egen tilstand 
+som Vue ikke vet om: en ubundet <input>, fokus, markert tekst, scrollposisjon, animasjoner eller lokal state i en komponent. 
+Da følger tilstanden elementet, ikke dataene.
+
+---------------------------------------------------------------------------------------
+
+Hva er forskjellen på v-if og v-show i DOM-en?
+
+v-if fjerner elementet helt fra DOM-en når betingelsen er false. 
+I DevTools ser du bare en <!--v-if-->-kommentar der det sto. 
+Når det blir true igjen, bygges elementet (og eventuelle komponenter inni) opp på nytt, 
+så lokal tilstand nullstilles.
+
+v-show lar elementet stå i DOM-en hele tiden og skrur bare på style="display: none".
+ Elementet og tilstanden i det blir bevart.
+
+---------------------------------------------------------------------------------------
