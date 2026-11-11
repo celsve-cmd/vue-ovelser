@@ -107,3 +107,36 @@ Hvor havnet notatet ditt?
 
 4b. Prøv v-model.lazy på et felt og se når verdien oppdateres.
     Oppdaterer verdien når man trykker enter eller forlater feltet, i stedet for på hver tastetrykk.-->
+
+
+    -------------------------------------------------------------------------------------------------------------------------
+
+
+1   tasks ligger i ToDoList, ikke i ToDoItem. Hvorfor? 
+    Hva ville skjedd hvis ToDoItem eide lista si?
+
+    Fordi det er TodoList som trenger oversikt over alle oppgavene samtidig. 
+    Den skal vise dem, legge til nye, slette, og sende tall til TodoStats. 
+    Hvis hver ToDoItem hadde hatt sin egen liste, hadde hver rad bare visst om seg selv, 
+    og ingen hadde kunnet regne ut «2 oppgaver, 1 ferdig». Data skal bo i den nærmeste 
+    felles forelderen til alle som trenger den
+
+---------------------------------------------------------------------------------------
+
+2   ToDoItem kunne endret task.done direkte, siden den får objektet. 
+    Hvorfor gjør den det ikke?
+
+    Fordi props bare skal gå én vei: nedover fra forelderen. 
+    ToDoItem får oppgaven, men den eier den ikke, så den skal ikke gå inn og endre den selv.
+    I stedet emitter den toggle opp til ToDoList, som gjør selve endringen.
+
+---------------------------------------------------------------------------------------
+    
+3   Du fikk en feilende test i oppgave 4c og en grønn etterpå. 
+    Hva beviste den røde kjøringen som den grønne ikke beviser?
+
+    --Den røde kjøringen i beviser at testen faktisk kan feile: når du endrer forventningen 
+    til [[2]], oppdager testen at komponenten emitter [[1]]. 
+    Det viser at toggle-testen sjekker emit-verdien og ikke bare kjører uten å kontrollere noe. 
+    Den grønne kjøringen alene beviser bare at ingenting feilet, 
+    men det kan også bety at testen er tom, f.eks ('').
