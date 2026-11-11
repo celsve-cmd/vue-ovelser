@@ -96,3 +96,14 @@ v-show lar elementet stå i DOM-en hele tiden og skrur bare på style="display: 
  Elementet og tilstanden i det blir bevart.
 
 ---------------------------------------------------------------------------------------
+
+
+3c. Endre addTask slik at den bruker tasks.value.unshift(...) i stedet for push. 
+Legg til en ny oppgave. 
+Hvor havnet notatet ditt?
+  
+-- Notatet havnet øverst i listen, fordi unshift legger til elementer i starten av arrayet, 
+-- mens push legger til elementer på slutten.
+
+4b. Prøv v-model.lazy på et felt og se når verdien oppdateres.
+    Oppdaterer verdien når man trykker enter eller forlater feltet, i stedet for på hver tastetrykk.-->
