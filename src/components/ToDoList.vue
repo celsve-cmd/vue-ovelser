@@ -51,6 +51,11 @@ function confirmDelete() {
   if (taskToDelete.value !== null) removeTask(taskToDelete.value)
   isDeleteOpen.value = false
 }
+
+function clearDoneTasks() {
+    tasks.value = tasks.value.filter((task) => !task.done)
+}
+
 </script>
 
 <template>
@@ -73,6 +78,8 @@ function confirmDelete() {
             <p>Oppgaven slettes permanent.</p>
             <button @click="confirmDelete">Ja, slett</button>
         </AppModal>
+
+        <button @click="clearDoneTasks">Fjern ferdige</button>
     </section>
 
 </template>

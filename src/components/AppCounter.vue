@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 const count = ref(0)
+const step = ref(1)
 
 function increment() {
   count.value++
@@ -20,6 +21,7 @@ function reset() {
   <h2>Teller</h2>
   <div class="counter">
     <p>Teller: {{ count }}</p>
+    <input type="number" v-model.number="step" />
     <button @click="increment">+1</button>
     <button @click="decrement">-1</button>
     <button @click="reset">Nullstill</button>
