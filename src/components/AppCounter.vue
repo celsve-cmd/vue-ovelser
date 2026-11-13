@@ -17,6 +17,7 @@ function reset() {
 </script>
 
 <template>
+  <h2>Teller</h2>
   <div class="counter">
     <p>Teller: {{ count }}</p>
     <button @click="increment">+1</button>
