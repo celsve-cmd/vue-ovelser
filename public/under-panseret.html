@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <title>Under panseret: mini-reaktivitet</title>
+  </head>
+  <body>
+    <h1>Mini-reaktivitet — tretti linjer</h1>
+    <p>Dette er <strong>ikke</strong> Vue. Det er idéen Vue er bygget på.</p>
+
+    <button id="opp">Øk tilstand.tall med 1</button>
+
+    <p>Reaktiv (oppdateres av effekten): <strong id="reaktiv">?</strong></p>
+    <p>Manuelt (oppdateres av klikket): <strong id="manuell">?</strong></p>
+    <p id="status"></p>
+
+    <script>
+      let aktivEffekt = null
+      const avhengigheter = new Map()
+
+      function track(nokkel) {
+        if (!aktivEffekt) return
+        if (!avhengigheter.has(nokkel)) avhengigheter.set(nokkel, new Set())
+        avhengigheter.get(nokkel).add(aktivEffekt)
+      }
+
+      function trigger(nokkel) {
+        const effekter = avhengigheter.get(nokkel)
+        if (effekter) effekter.forEach((fn) => fn())
+      }
+
+      function reactive(obj) {
+        return new Proxy(obj, {
+          get(mal, nokkel) {
+            //track(nokkel)
+            return mal[nokkel]
+          },
+          set(mal, nokkel, verdi) {
+            mal[nokkel] = verdi
+            trigger(nokkel)
+            return true
+          },
+        })
+      }
+
+      function effect(fn) {
+        aktivEffekt = fn
+        fn()
+        aktivEffekt = null
+      }
+
+      const tilstand = reactive({ tall: 0 })
+      const reaktiv = document.getElementById('reaktiv')
+      const manuell = document.getElementById('manuell')
+      const status = document.getElementById('status')
+
+      effect(() => {
+        reaktiv.textContent = tilstand.tall
+      })
+      manuell.textContent = tilstand.tall
+
+      document.getElementById('opp').addEventListener('click', () => {
+        tilstand.tall++
+        manuell.textContent = tilstand.tall
+        status.textContent =
+          avhengigheter.size +
+          ' nøkkel(er) sporet, ' +
+          (avhengigheter.get('tall')?.size ?? 0) +
+          ' effekt(er) på «tall»'
+      })
+    </script>
+  </body>
+</html>
