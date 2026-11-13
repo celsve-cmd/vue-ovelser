@@ -140,3 +140,77 @@ Hvor havnet notatet ditt?
     Det viser at toggle-testen sjekker emit-verdien og ikke bare kjører uten å kontrollere noe. 
     Den grønne kjøringen alene beviser bare at ingenting feilet, 
     men det kan også bety at testen er tom, f.eks ('').
+
+
+    -------------------------------------------------------------------------------------------------------------------------
+
+    Slots og modaler
+    --------------------
+
+1   TodoStats fikk tallene sine som props. Hvorfor får AppModal innholdet sitt gjennom en slot i stedet? 
+
+    --ToDoStats trenger data: to tall som den selv bestemmer hvordan den viser ({{ total }} oppgaver, {{ done }} ferdig).
+    Formen er fast og forelderen leverer KUN verdiene av disse dataene.
+    AppModal er motsatt. Den bestemmer selve rammen med overlay, boks og lukk-knapp, men har ingen anelse om hva som skal inni.
+    Det kan være tekst, tall, skjema, liste, eller en hel komponent.
+    Når vi bruker slot sier modalen "jeg lager rammen, du bestemmer innholdet". Da kan vi gjenbruke samme modal, samme kode, til alt mulig.
+
+
+    Hva ville skjedd om vi prøvde å sende overskriften som en prop?
+
+    --Det ville fungert for ren tekst, f.eks. <AppModal title="Bekreft sletting">, 
+    og modalen måtte da selv ha hatt en <h2>{{ title }}</h2> i templaten.
+    Gjør man det låser man seg til én fast form: bare en string, og modalen bestemmer markeringen. 
+    Vil man ha en overskrift med f.eks et ikon, en lenke, fet skrift eller en annen komponent, går det ikke med en vanlig string. 
+    Da ville man enten måtte lage en ny prop for hver variant av det man skal ha, eller sende inn HTML som string og vise med v-html.
+    Problemet med dette er at det danner sikkerhetshull (XSS).
+
+    Slots er verktøyet for dette, fordi kompilatoren behandler innholdet som template kode, og ikke som tekst/string.
+    Med slots kan forelderen sende inn hva som helst som markup, og modalen trenger ikke å vite noe om det.
+    Hvis man vil ha en egen plass til overskriften uten å miste fleksibiliteten, finnes det navngitte slots, 
+    f.eks. <slot name="header" />
+
+---------------------------------------------------------------------------------------
+
+2   isDeleteOpen ligger i TodoList, ikke i AppModal. 
+
+    --Det er fordi det er ToDoList som vet når modalen skal åpnes (når brukeren trykker på en slett-knapp), og det er ToDoList
+    som til slutt gjør selve slettingen.
+    Tilstanden "er modalen åpen?" hører derfor hjemme hos den som styrer flyten, ikke hos selve modalen i seg selv.
+    Modalen er en gjenbrukbar ramme, og den vet ikke hva dden skal brukes til.
+    Det kan være sletting som i dette tilfellet, men og noe helt annet ved et annet tilfelle.
+    Dem vanligste måten å vise den på er <AppModal v-if="isDeleteOpen" ...> 
+    så forelderen bestemmer hvorvidt den i det heletatt finnes.
+
+    Hvorfor der — og hvorfor lukker ikke AppModal seg selv?
+
+    --Det er fordi den ikke eier tilstanden som styrer om den skal vises eller ei. Skulle den lukke seg selv, måtte den endre
+    en verdi som ligger hos forelderen, og da ender vi opp med å mutere noe man ikke eier.
+    I stedet kaller den på close når noen trykker Lukk (emit ('close') ), og ToDoList svarer med isDeleteOpen = false.
+    Det gir også fleksibilitet. Forelderen kan velge å lukke modalen også etter at slettingen er gjort, eller la være
+    uten at AppModal trenger å vite noe om det.
+    
+    Modalen BER om å bli lukket, forelderen bestemmer at det skjer.
+
+---------------------------------------------------------------------------------------
+
+3   Du bruker samme AppModal til to helt ulike dialoger. 
+    Hva gjør at du ikke trenger å endre AppModal.vue når du legger til en tredje?
+
+    --Det er det sloten som gjør.
+    AppModal bryr seg kun om rammen (overlay, styling og Lukk-knappen med emit('close') ). Selve innholdet vet den ingenting om
+    for alt forelderen putter mellom <AppModal> og </AppModal> havner i <slot />. Skal man ha en tredje dialog, skriver man
+    bare nytt innhold på det stedet man bruker den, for eksempel et skjema eller en bekreftelsestekts, og modalen vises akkurat som før
+    bare med nytt innhold.
+
+    Det samme gjelder for tilstanden.
+    Hver dialog har sin egen isOpen-variabel hos forelderen, og modalen får aldri vite hvilken den hører til.
+    Den kaller kun på close og forelderen avgjør hva det betyr.
+
+    Rammen er stabil, mens innholdet varierer.
+    Det er ofte et tegn på at man har delt opp komponentene sine riktig.
+    Det som er likt ligger i AppModal, det som er ulikt sendes inn utenfra.
+    Modalen er en tom ramme mens man kan velge selv hvilket "bilde" man vil ha i denne rammen.
+
+
+-------------------------------------------------------------------------------------------------------------------------
